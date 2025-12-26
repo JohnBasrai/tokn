@@ -4,6 +4,15 @@ use axum::response::Html;
 
 // ---
 
+/// Displays the user profile page.
+///
+/// Currently shows a placeholder authenticated page.
+///
+/// # TODO
+///
+/// - Check for valid access token in Redis
+/// - Fetch user info from oauth2-server userinfo endpoint
+/// - Display actual user data instead of placeholder
 pub async fn profile_handler() -> Html<&'static str> {
     // ---
     // TODO: Check for valid access token in Redis

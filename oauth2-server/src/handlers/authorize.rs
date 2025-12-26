@@ -10,6 +10,9 @@ use std::sync::Arc;
 
 // ---
 
+/// Query parameters for the OAuth2 authorization request.
+///
+/// These parameters are sent by the client when initiating the authorization code flow.
 #[derive(Debug, Deserialize)]
 pub struct AuthorizeQuery {
     // ---
@@ -22,6 +25,27 @@ pub struct AuthorizeQuery {
 
 // ---
 
+/// Displays the OAuth2 authorization consent page.
+///
+/// This implements the authorization endpoint of the OAuth2 authorization code flow (RFC 6749 §4.1.1-4.1.2).
+/// Shows a consent page asking the user to approve or deny the client's access request.
+///
+/// # Security
+///
+/// - TODO: Validate client_id exists in database
+/// - TODO: Validate redirect_uri matches client registration
+/// - TODO: Implement actual user authentication before showing consent
+///
+/// # OAuth2 Flow
+///
+/// 1. Client redirects user here with authorization request parameters
+/// 2. Server displays consent page with requested scopes
+/// 3. User approves or denies (handled by authorize_post_handler)
+///
+/// # Current Implementation
+///
+/// Shows a simple consent page with approve/deny buttons. The form submits to
+/// the authorize_post_handler which generates the authorization code.
 pub async fn authorize_handler(
     State(_pool): State<Arc<PgPool>>,
     Query(params): Query<AuthorizeQuery>,

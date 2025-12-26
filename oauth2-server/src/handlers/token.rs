@@ -13,6 +13,9 @@ use uuid::Uuid;
 
 // ---
 
+/// OAuth2 token request parameters.
+///
+/// Sent by the client to exchange an authorization code for an access token (RFC 6749 §4.1.3).
 #[derive(Debug, Deserialize)]
 pub struct TokenRequest {
     // ---
@@ -25,6 +28,9 @@ pub struct TokenRequest {
 
 // ---
 
+/// OAuth2 token response.
+///
+/// Returned to the client after successful token exchange (RFC 6749 §4.1.4).
 #[derive(Debug, Serialize)]
 pub struct TokenResponse {
     // ---
@@ -35,6 +41,9 @@ pub struct TokenResponse {
 
 // ---
 
+/// OAuth2 token error response.
+///
+/// Returned when token exchange fails (RFC 6749 §5.2).
 #[derive(Debug, Serialize)]
 pub struct TokenError {
     // ---
@@ -44,6 +53,41 @@ pub struct TokenError {
 
 // ---
 
+/// Exchanges an authorization code for an access token.
+///
+/// This implements the token endpoint of the OAuth2 authorization code flow (RFC 6749 §4.1.3).
+/// The client exchanges a one-time authorization code for an access token that can be used
+/// to access protected resources.
+///
+/// # Security
+///
+/// - Validates client credentials (client_id and client_secret)
+/// - Verifies authorization code exists and hasn't been used
+/// - Checks authorization code hasn't expired (5-minute TTL)
+/// - Validates redirect_uri matches the one used during authorization
+/// - Invalidates authorization code after successful exchange (one-time use)
+/// - Generates cryptographically random access token (UUID v4)
+/// - Sets 1-hour expiration on access tokens
+///
+/// # OAuth2 Flow
+///
+/// 1. Parse and validate token request parameters
+/// 2. Validate client credentials against database
+/// 3. Fetch and validate authorization code
+/// 4. Check code expiration and redirect_uri match
+/// 5. Generate access token with expiration
+/// 6. Store access token in database
+/// 7. Delete used authorization code
+/// 8. Return access token to client
+///
+/// # Errors
+///
+/// Returns JSON error response with appropriate HTTP status code:
+/// - 400 BAD_REQUEST: Malformed request, unsupported grant type, invalid/expired code, redirect_uri mismatch
+/// - 401 UNAUTHORIZED: Invalid client credentials, client not found
+/// - 500 INTERNAL_SERVER_ERROR: Database errors, token generation failures
+///
+/// Error responses follow RFC 6749 §5.2 format with `error` and `error_description` fields.
 pub async fn token_handler(
     State(pool): State<Arc<PgPool>>,
     body: String, // Capture raw body first

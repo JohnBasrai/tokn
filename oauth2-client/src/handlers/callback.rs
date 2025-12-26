@@ -17,6 +17,9 @@ use crate::Config;
 
 // ---
 
+/// Query parameters received from the OAuth2 authorization server callback.
+///
+/// Contains the authorization code and optional state parameter from the OAuth2 redirect.
 #[derive(Debug, Deserialize)]
 pub struct CallbackQuery {
     // ---
@@ -26,6 +29,31 @@ pub struct CallbackQuery {
 
 // ---
 
+/// Handles the OAuth2 authorization callback.
+///
+/// This implements the client-side token exchange step of the OAuth2 authorization code flow (RFC 6749 §4.1.3-4.1.4).
+/// After the user approves access at the authorization server, they are redirected here with an authorization code.
+///
+/// # Security
+///
+/// - Exchanges the authorization code for an access token
+/// - Validates the token response from the authorization server
+/// - Fetches user information using the access token
+/// - TODO: Should validate CSRF state token from Redis
+///
+/// # OAuth2 Flow
+///
+/// 1. Receives authorization code from redirect
+/// 2. Exchanges code for access token at token endpoint
+/// 3. Uses access token to fetch user info from userinfo endpoint
+/// 4. Displays user information to demonstrate successful authentication
+///
+/// # Errors
+///
+/// Returns redirect to home page with error parameter if:
+/// - Token exchange fails (invalid code, network error)
+/// - Userinfo request fails (invalid token, network error)
+/// - Userinfo response cannot be parsed
 pub async fn callback_handler(
     State(config): State<Arc<Config>>,
     Query(params): Query<CallbackQuery>,

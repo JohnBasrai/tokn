@@ -34,6 +34,7 @@ cargo run -p oauth2-client
 
 Test the full CI pipeline locally using [act](https://github.com/nektos/act):
 ```bash
+./scripts/shutdown.sh # Stop all tokn services
 ./scripts/ci-local.sh
 ```
 
@@ -45,7 +46,6 @@ This runs the same checks as GitHub Actions: formatting, clippy, build, and test
 - Rust toolchain
 - Docker & Docker Compose
 - sqlx-cli: `cargo install sqlx-cli --no-default-features --features postgres`
-
 ---
 
 ## Development
