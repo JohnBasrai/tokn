@@ -13,6 +13,9 @@ use uuid::Uuid;
 
 // ---
 
+/// Form data submitted from the authorization consent page.
+///
+/// Contains the client's authorization request parameters and the user's decision (approve/deny).
 #[derive(Debug, Deserialize)]
 pub struct AuthorizeForm {
     // ---
@@ -25,6 +28,33 @@ pub struct AuthorizeForm {
 
 // ---
 
+/// Processes the user's authorization decision and generates an authorization code.
+///
+/// This implements the authorization response step of the OAuth2 authorization code flow (RFC 6749 §4.1.2).
+/// If the user approves, generates an authorization code and redirects back to the client.
+///
+/// # Security
+///
+/// - Generates cryptographically random authorization code (UUID v4)
+/// - Sets 5-minute expiration on authorization codes
+/// - Stores code with associated client_id and redirect_uri for validation during token exchange
+/// - TODO: Validate client_id exists in database
+/// - TODO: Validate redirect_uri matches client registration
+/// - TODO: Get actual user_id from authenticated session instead of hardcoded value
+///
+/// # OAuth2 Flow
+///
+/// If approved:
+/// 1. Generate authorization code
+/// 2. Store code in database with expiration
+/// 3. Redirect to client's redirect_uri with code and state
+///
+/// If denied:
+/// 1. Redirect to client's redirect_uri with error=access_denied
+///
+/// # Errors
+///
+/// Returns redirect with error=server_error if database operations fail.
 pub async fn authorize_post_handler(
     State(pool): State<Arc<PgPool>>,
     Form(form): Form<AuthorizeForm>,

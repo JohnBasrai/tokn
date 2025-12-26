@@ -12,6 +12,9 @@ use std::sync::Arc;
 
 // ---
 
+/// User information response.
+///
+/// Returns the authenticated user's profile information (OIDC UserInfo endpoint).
 #[derive(Debug, Serialize)]
 pub struct UserInfo {
     // ---
@@ -21,6 +24,7 @@ pub struct UserInfo {
 
 // ---
 
+/// Error response for userinfo endpoint.
 #[derive(Debug, Serialize)]
 pub struct ErrorResponse {
     // ---
@@ -29,6 +33,32 @@ pub struct ErrorResponse {
 
 // ---
 
+/// Returns user profile information for a valid access token.
+///
+/// This implements the OIDC UserInfo endpoint that returns claims about the authenticated user.
+/// Clients use this endpoint to fetch user profile data after obtaining an access token.
+///
+/// # Security
+///
+/// - Requires valid Bearer token in Authorization header
+/// - Validates token exists in database
+/// - Checks token hasn't expired (1-hour TTL)
+/// - Returns 401 UNAUTHORIZED for missing/invalid/expired tokens
+/// - Only returns user data associated with the token's user_id
+///
+/// # OAuth2 Flow
+///
+/// 1. Extract Bearer token from Authorization header
+/// 2. Validate token exists and hasn't expired
+/// 3. Fetch user information using the token's user_id
+/// 4. Return user profile as JSON
+///
+/// # Errors
+///
+/// Returns JSON error response with appropriate HTTP status code:
+/// - 401 UNAUTHORIZED: Missing/invalid Authorization header, invalid/expired token
+/// - 404 NOT_FOUND: User not found in database
+/// - 500 INTERNAL_SERVER_ERROR: Database errors
 pub async fn userinfo_handler(
     State(pool): State<Arc<PgPool>>,
     headers: HeaderMap,

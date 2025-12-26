@@ -14,6 +14,6 @@ until docker compose exec postgres pg_isready -U postgres > /dev/null 2>&1; do
 done
 
 # Run tests
-cargo test --workspace --all-features
+SQLX_OFFLINE=true cargo test --workspace --all-features
 
 echo "✅ All tests passed!"

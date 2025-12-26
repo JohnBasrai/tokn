@@ -14,6 +14,28 @@ use crate::Config;
 
 // ---
 
+/// Initiates the OAuth2 authorization code flow.
+///
+/// This implements the authorization request step of the OAuth2 authorization code flow (RFC 6749 §4.1.1).
+/// Constructs an authorization URL and redirects the user to the authorization server.
+///
+/// # Security
+///
+/// - Generates a CSRF token (currently not validated - TODO)
+/// - Requests the "profile" scope
+/// - Uses HTTPS redirect to authorization server
+///
+/// # OAuth2 Flow
+///
+/// 1. Constructs OAuth2 client with credentials
+/// 2. Generates authorization URL with:
+///    - client_id
+///    - redirect_uri (callback endpoint)
+///    - scope (requested permissions)
+///    - state (CSRF token)
+/// 3. Redirects user to authorization server for consent
+///
+/// After user approval, the authorization server redirects back to the callback handler.
 pub async fn login_handler(State(config): State<Arc<Config>>) -> impl IntoResponse {
     // ---
     // Build OAuth2 client
