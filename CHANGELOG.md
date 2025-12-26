@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Complete OAuth2 authorization server implementation
+- Authorization endpoint with consent page (GET/POST /oauth/authorize)
+- Token exchange endpoint (POST /oauth/token)
+- User info endpoint (GET /oauth/userinfo)
+- Database migrations for OAuth2 schema (clients, users, codes, tokens)
+- Seed data: demo user and client credentials
+- Manual request body deserialization for better error handling
+- Comprehensive validation and error responses
 - Initial workspace structure with `oauth2-client` and `oauth2-server` crates
 - OAuth2 client implementation with authorization code flow
 - HTTP handlers: home, login, callback, profile
@@ -18,7 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Request tracing with configurable ANSI color output
 
 ### Changed
-- None
+- OAuth2 client now uses RequestBody auth type
+- Client callback handler fetches and displays user info
+- Enhanced logging for token exchange debugging
+
+### Completed
+- Full OAuth2 authorization code flow working end-to-end
 
 ### Deprecated
 - None

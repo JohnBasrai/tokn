@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT client_secret, redirect_uri\n        FROM clients\n        WHERE client_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "client_secret",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "redirect_uri",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "547eecb94d5267fb3ea43189c983e2a8fe5897f86618338b75e724b2ac0a90d6"
+}
