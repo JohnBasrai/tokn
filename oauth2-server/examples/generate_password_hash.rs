@@ -15,11 +15,11 @@ fn main() {
 
     match argon2.hash_password(password.as_bytes(), &salt) {
         Ok(hash) => {
-            println!("Password: {}", password);
-            println!("Hash: {}", hash);
+            println!("Password: {password}");
+            println!("Hash: {hash}");
         }
         Err(e) => {
-            eprintln!("Error generating hash: {}", e);
+            eprintln!("Error generating hash: {e}");
             std::process::exit(1);
         }
     }
