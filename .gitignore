@@ -23,3 +23,5 @@ Thumbs.db
 # Database
 *.db
 *.sqlite
+make-source-tar.sh
+tokn-sync.tar.gz
