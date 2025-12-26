@@ -13,7 +13,6 @@ authors = ["Your Name <your.email@example.com>"]
 [workspace.dependencies]
 # Web framework
 axum = "0.8"
-tower = "0.5"
 tower-http = { version = "0.6", features = ["trace", "cors"] }
 tokio = { version = "1", features = ["full"] }
 
@@ -27,8 +26,6 @@ redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
 
 # OAuth2
 oauth2 = "4.4"
-oxide-auth = "0.6"
-oxide-auth-axum = "0.2"
 
 # Error handling & observability
 anyhow = "1.0"
