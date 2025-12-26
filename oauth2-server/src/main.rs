@@ -40,6 +40,10 @@ async fn main() -> Result<()> {
     // Build router
     let app = Router::new()
         .route("/oauth/authorize", get(oauth2_server::authorize_handler))
+        .route(
+            "/oauth/authorize",
+            post(oauth2_server::authorize_post_handler),
+        )
         .route("/oauth/token", post(oauth2_server::token_handler))
         .route("/oauth/userinfo", get(oauth2_server::userinfo_handler))
         .layer(TraceLayer::new_for_http())

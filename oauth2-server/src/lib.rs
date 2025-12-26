@@ -15,4 +15,10 @@ mod handlers;
 
 pub use config::Config;
 pub use database::create_pool;
-pub use handlers::{authorize_handler, token_handler, userinfo_handler};
+pub use handlers::{
+    //
+    authorize_handler,
+    authorize_post_handler,
+    token_handler,
+    userinfo_handler,
+};

@@ -28,6 +28,7 @@ redis.workspace = true
 # Serialization
 serde.workspace = true
 serde_json.workspace = true
+serde_urlencoded = "0.7"
 
 # Error handling
 anyhow.workspace = true
@@ -45,4 +46,3 @@ rand.workspace = true
 dotenvy.workspace = true
 chrono.workspace = true
 uuid.workspace = true
-
