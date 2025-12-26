@@ -7,4 +7,12 @@
 
 // ---
 
-// TODO: Implement OAuth2 server in Phase 2
+mod config;
+mod database;
+mod handlers;
+
+// ---
+
+pub use config::Config;
+pub use database::create_pool;
+pub use handlers::{authorize_handler, token_handler, userinfo_handler};

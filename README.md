@@ -24,6 +24,11 @@ cargo run -p oauth2-client
 # Visit http://localhost:8081
 ```
 
+## Prerequisites
+- Rust toolchain
+- Docker & Docker Compose
+- sqlx-cli: `cargo install sqlx-cli --no-default-features --features postgres`
+
 ## Development
 
 See individual service READMEs:

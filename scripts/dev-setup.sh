@@ -27,7 +27,7 @@ done
 
 # Run migrations (when we add them)
 # echo "🗄️  Running migrations..."
-# cargo sqlx migrate run --database-url "postgresql://postgres:postgres@localhost:5432/tokn_db"
+sqlx migrate run --database-url "postgresql://postgres:postgres@localhost:5432/tokn_db"
 
 echo "✅ Development environment ready!"
 echo ""
