@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "oauth2-client",
     "oauth2-server",
+    "jwt-service",
 ]
 
 [workspace.package]
