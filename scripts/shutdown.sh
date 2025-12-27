@@ -4,5 +4,5 @@
 set -e
 
 echo "🛑 Stopping tokn services..."
-docker compose down
+docker compose --ansi never down
 echo "✅ Services stopped"

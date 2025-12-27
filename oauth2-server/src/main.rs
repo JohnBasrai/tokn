@@ -2,6 +2,7 @@
 
 use anyhow::Result;
 use axum::{
+    http::StatusCode,
     routing::{get, post},
     Router,
 };
@@ -9,6 +10,26 @@ use oauth2_server::Config;
 use std::sync::Arc;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+// ---
+
+/// Root endpoint - service info
+///
+/// **Security Note:** This endpoint reveals service information and available endpoints.
+/// In production, consider removing this or placing it behind authentication to avoid
+/// information disclosure to potential attackers.
+async fn root_handler() -> (StatusCode, &'static str) {
+    // ---
+    (
+        StatusCode::OK,
+        "oauth2-server v0.1.0\n\
+         \n\
+         Available endpoints:\n\
+         - GET/POST /oauth/authorize - Authorization endpoint\n\
+         - POST /oauth/token - Token exchange endpoint\n\
+         - GET /oauth/userinfo - User information endpoint\n",
+    )
+}
 
 // ---
 
@@ -39,6 +60,7 @@ async fn main() -> Result<()> {
     // ---
     // Build router
     let app = Router::new()
+        .route("/", get(root_handler))
         .route("/oauth/authorize", get(oauth2_server::authorize_handler))
         .route(
             "/oauth/authorize",

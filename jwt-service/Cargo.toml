@@ -1,0 +1,36 @@
+[package]
+name = "jwt-service"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "jwt-service"
+path = "src/main.rs"
+
+[dependencies]
+# Web framework
+axum.workspace = true
+tower-http.workspace = true
+tokio.workspace = true
+
+# JWT
+jsonwebtoken = { version = "9", features = ["use_pem"] }
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# Database & Cache
+redis = { version = "0.26", features = ["tokio-comp", "connection-manager"] }
+
+# Error handling & observability
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+# Utilities
+chrono.workspace = true
+uuid.workspace = true
+dotenvy.workspace = true
+once_cell.workspace = true

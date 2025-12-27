@@ -12,6 +12,7 @@ env:
   REDIS_URL: redis://localhost:6379
   RUST_LOG: info
   SQLX_OFFLINE: true
+  JWT_SECRET: test-secret-key-for-ci-must-be-at-least-32-characters-long
 
 jobs:
   test:
@@ -70,16 +71,12 @@ jobs:
       uses: actions/cache@v4
       with:
         path: target
-        key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
-          ${{ runner.os }}-target-
+          ${{ runner.os }}-cargo-target-
 
-    # TODO: Add back in Phase 2 when migrations exist
-    # - name: Install sqlx-cli
-    #   run: cargo install sqlx-cli --quiet --no-default-features --features postgres
-    #
-    # - name: Run database migrations
-    #   run: sqlx migrate run
+    - name: Run JWT service integration tests
+      run: ./scripts/test-jwt-service.sh
 
     - name: Check formatting
       run: cargo fmt -- --check

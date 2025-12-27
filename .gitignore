@@ -25,3 +25,4 @@ Thumbs.db
 *.sqlite
 make-source-tar.sh
 tokn-sync.tar.gz
+/act-install.sh
