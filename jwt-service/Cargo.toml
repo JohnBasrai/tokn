@@ -22,7 +22,7 @@ serde.workspace = true
 serde_json.workspace = true
 
 # Database & Cache
-redis.workspace = true
+redis = { version = "0.26", features = ["tokio-comp", "connection-manager"] }
 
 # Error handling & observability
 anyhow.workspace = true

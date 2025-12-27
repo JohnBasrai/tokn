@@ -4,14 +4,13 @@
 //!
 //! Handles POST /auth/validate - validates JWT tokens and returns claims
 
-use crate::{token::validate_token, Claims, Config};
+use crate::{token::validate_token, AppState, Claims};
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
 // ---
 
@@ -112,12 +111,12 @@ pub struct ValidateErrorResponse {
 /// - Add rate limiting to prevent validation abuse
 /// - Consider caching valid tokens briefly
 pub async fn validate_token_handler(
-    State(config): State<Arc<Config>>,
+    State(state): State<AppState>,
     Json(req): Json<ValidateRequest>,
 ) -> impl IntoResponse {
     // ---
     // Validate the token
-    match validate_token(&req.token, &config.jwt.secret) {
+    match validate_token(&req.token, &state.config.jwt.secret) {
         Ok(claims) => {
             // Token is valid
             let response = ValidateResponse {
