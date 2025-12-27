@@ -12,17 +12,17 @@
 
 mod generate;
 mod refresh;
+mod revoke;
 mod validate;
 
 // ---
 
 pub use generate::generate_token_handler;
 pub use refresh::refresh_token_handler;
+pub use revoke::revoke_token_handler;
 pub use validate::validate_token_handler;
 
 // TODO: Add remaining handlers
-// mod revoke;
 // mod protected;
 
-// pub use revoke::revoke_token_handler;
 // pub use protected::protected_handler;

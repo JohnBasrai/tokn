@@ -2,11 +2,16 @@
 
 Thanks for considering contributing!
 
+## Quick Start
+
+**New to the project?** See [docs/development-setup.md](docs/development-setup.md) for environment setup, tooling installation, and testing workflows.
+
 **Before submitting a pull request:**
 
 - Ensure all tests pass (`SQLX_OFFLINE=true cargo test`)
 - Format your code (`cargo fmt`)
 - Run clippy checks (`SQLX_OFFLINE=true cargo clippy`)
+- Run local CI (`./scripts/ci-local.sh`)
 - If your change affects behavior, please update `CHANGELOG.md` under the [Unreleased] section
 - Keep commits focused and descriptive
 
@@ -18,27 +23,7 @@ We follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic
 
 This project uses `rustfmt` for consistent code formatting. All code should be formatted before committing.
 
-### Quick Commands
-```bash
-# Format all code
-cargo fmt
-
-# Check if code is formatted (used by CI)
-cargo fmt --check
-
-# Run clippy linter
-SQLX_OFFLINE=true cargo clippy --all-targets --all-features --no-deps -- -D warnings
-
-# Run the complete test suite
-./scripts/test-all.sh
-
-# Run tests for specific crate
-SQLX_OFFLINE=true cargo test -p oauth2-client
-SQLX_OFFLINE=true cargo test -p oauth2-server
-
-# Run full CI/CD run locally to increase the chances that it will run on GitHub.
-scripts/ci-local.sh
-```
+**See [docs/development-setup.md](docs/development-setup.md) for testing and code quality commands.**
 
 ### Visual Separators
 
@@ -202,6 +187,64 @@ This project uses the [Explicit Module Boundary Pattern (EMBP)](https://github.c
 - Sibling modules import from each other using `super::`
 - External modules import through `crate::module::`
 - Never bypass module gateways with deep imports
+
+## Test Coverage
+
+This project uses a **layered testing approach** optimized for authentication infrastructure:
+
+### Current Test Strategy
+
+**Integration Tests (Primary):**
+- `scripts/test-jwt-service.sh` - 7 scenarios covering token lifecycle
+- Validates real service behavior with Redis/PostgreSQL
+- Tests security properties (rotation, revocation, blacklisting)
+
+**Doc Tests (Secondary):**
+- 8 doc tests in jwt-service proving code examples work
+- Validates public API usage patterns
+- Ensures documentation stays accurate
+
+**Unit Tests:**
+- Currently minimal (authentication logic is better tested end-to-end)
+- Add unit tests for complex business logic as needed
+
+### When to Add Tests
+
+**Add integration tests when:**
+- Adding new endpoints or authentication flows
+- Changing token validation or generation logic
+- Implementing security features (rotation, revocation)
+
+**Add doc tests when:**
+- Adding public APIs that developers will use
+- Providing usage examples for complex functionality
+
+**Add unit tests when:**
+- Complex business logic needs isolated testing
+- Edge cases are difficult to trigger via integration tests
+
+### Test Organization
+
+```
+scripts/
+  test-jwt-service.sh    # JWT service integration tests
+  test-all.sh            # All workspace tests (unit + doc tests)
+  ci-local.sh            # Full CI pipeline (includes all tests)
+```
+
+**Running tests:**
+```bash
+# Integration tests (auto-starts services)
+./scripts/test-jwt-service.sh
+
+# All workspace tests (unit + doc tests)
+./scripts/test-all.sh
+
+# Full CI pipeline locally
+./scripts/ci-local.sh
+```
+
+**Note:** This is a demo project showcasing authentication patterns. Production code would include more comprehensive unit tests, integration tests for oauth2-server/client, and property-based testing for security-critical code.
 
 ## Testing OAuth2 Flows
 

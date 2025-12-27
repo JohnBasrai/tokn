@@ -4,7 +4,7 @@
 //!
 //! Handles POST /auth/validate - validates JWT tokens and returns claims
 
-use crate::{token::validate_token, AppState, Claims};
+use crate::{is_token_revoked, token::validate_token, AppState, Claims};
 use axum::{
     extract::State,
     http::StatusCode,
@@ -56,7 +56,8 @@ pub struct ValidateErrorResponse {
 
 /// Validate a JWT token.
 ///
-/// This endpoint verifies the token signature and checks expiration.
+/// This endpoint verifies the token signature, checks expiration, and checks
+/// if the token has been revoked.
 ///
 /// # Request
 ///
@@ -94,8 +95,14 @@ pub struct ValidateErrorResponse {
 ///
 /// - Verifies HMAC-SHA256 signature
 /// - Checks token expiration (`exp` claim)
+/// - **Checks revocation blacklist** (new!)
 /// - Rejects tokens with invalid signatures
-/// - Does NOT check revocation list (implement separately)
+///
+/// # Validation Order
+///
+/// 1. Verify signature (fail fast on tampered tokens)
+/// 2. Check expiration (fail fast on expired tokens)
+/// 3. **Check revocation blacklist** (only if token is otherwise valid)
 ///
 /// # Validation Failures
 ///
@@ -104,10 +111,10 @@ pub struct ValidateErrorResponse {
 /// - Token has expired
 /// - Token format is malformed
 /// - Algorithm is not HS256
+/// - **Token has been revoked** (in blacklist)
 ///
 /// # TODO
 ///
-/// - Add revocation check (query Redis blacklist)
 /// - Add rate limiting to prevent validation abuse
 /// - Consider caching valid tokens briefly
 pub async fn validate_token_handler(
@@ -115,16 +122,9 @@ pub async fn validate_token_handler(
     Json(req): Json<ValidateRequest>,
 ) -> impl IntoResponse {
     // ---
-    // Validate the token
-    match validate_token(&req.token, &state.config.jwt.secret) {
-        Ok(claims) => {
-            // Token is valid
-            let response = ValidateResponse {
-                valid: true,
-                claims,
-            };
-            (StatusCode::OK, Json(response)).into_response()
-        }
+    // Validate the token (signature + expiry)
+    let claims = match validate_token(&req.token, &state.config.jwt.secret) {
+        Ok(claims) => claims,
         Err(e) => {
             // Token is invalid
             tracing::debug!("Token validation failed: {}", e);
@@ -133,7 +133,44 @@ pub async fn validate_token_handler(
                 valid: false,
                 error: e.to_string(),
             };
-            (StatusCode::UNAUTHORIZED, Json(error_response)).into_response()
+            return (StatusCode::UNAUTHORIZED, Json(error_response)).into_response();
+        }
+    };
+
+    // Check if token is revoked
+    match is_token_revoked(&mut state.redis.clone(), &claims.jti).await {
+        Ok(true) => {
+            // Token is revoked
+            tracing::debug!(
+                "Token validation failed: token revoked (jti={})",
+                claims.jti
+            );
+
+            let error_response = ValidateErrorResponse {
+                valid: false,
+                error: "Token has been revoked".to_string(),
+            };
+            return (StatusCode::UNAUTHORIZED, Json(error_response)).into_response();
+        }
+        Ok(false) => {
+            // Token is not revoked, proceed
+        }
+        Err(e) => {
+            // Redis error - fail secure (reject token)
+            tracing::error!("Failed to check token revocation status: {}", e);
+
+            let error_response = ValidateErrorResponse {
+                valid: false,
+                error: "Failed to verify token status".to_string(),
+            };
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response)).into_response();
         }
     }
+
+    // Token is valid and not revoked
+    let response = ValidateResponse {
+        valid: true,
+        claims,
+    };
+    (StatusCode::OK, Json(response)).into_response()
 }

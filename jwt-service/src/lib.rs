@@ -9,6 +9,7 @@ mod config;
 mod handlers;
 mod redis_client;
 mod refresh;
+mod revoke;
 mod token;
 
 use std::sync::Arc;
@@ -36,7 +37,10 @@ pub struct AppState {
 
 pub use claims::Claims;
 pub use config::Config;
-pub use handlers::{generate_token_handler, refresh_token_handler, validate_token_handler};
+pub use handlers::{
+    generate_token_handler, refresh_token_handler, revoke_token_handler, validate_token_handler,
+};
 pub use redis_client::create_redis_client;
 pub use refresh::{generate_refresh_token, validate_refresh_token};
+pub use revoke::{is_token_revoked, revoke_token};
 pub use token::{generate_token, validate_token};
