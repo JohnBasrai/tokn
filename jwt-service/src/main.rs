@@ -13,7 +13,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use jwt_service::{generate_token_handler, Config};
+use jwt_service::{generate_token_handler, validate_token_handler, Config};
 use std::sync::Arc;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -44,6 +44,7 @@ async fn main() -> Result<()> {
         .route("/", get(|| async { "JWT Service - Ready" }))
         .route("/health", get(|| async { "OK" }))
         .route("/auth/token", post(generate_token_handler))
+        .route("/auth/validate", post(validate_token_handler))
         .with_state(config.clone());
 
     // Start server
@@ -53,6 +54,7 @@ async fn main() -> Result<()> {
     info!("JWT service listening on {}", addr);
     info!("Endpoints:");
     info!("  POST /auth/token - Generate JWT token");
+    info!("  POST /auth/validate - Validate JWT token");
 
     axum::serve(listener, app).await?;
 

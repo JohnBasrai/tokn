@@ -13,5 +13,5 @@ mod token;
 
 pub use claims::Claims;
 pub use config::Config;
-pub use handlers::generate_token_handler;
-pub use token::generate_token;
+pub use handlers::{generate_token_handler, validate_token_handler};
+pub use token::{generate_token, validate_token};

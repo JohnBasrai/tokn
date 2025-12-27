@@ -2,11 +2,11 @@
 
 //! JWT token generation and encoding
 //!
-//! Provides functions to generate signed JWT tokens using HS256 algorithm.
+//! Provides functions to generate and validate signed JWT tokens using HS256 algorithm.
 
 use crate::claims::Claims;
 use anyhow::{Context, Result};
-use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 
 // ---
 
@@ -57,4 +57,67 @@ pub fn generate_token(claims: &Claims, secret: &str) -> Result<String> {
     let encoding_key = EncodingKey::from_secret(secret.as_bytes());
 
     encode(&header, claims, &encoding_key).context("Failed to encode JWT token")
+}
+
+// ---
+
+/// Validate and decode a JWT token.
+///
+/// Verifies the token signature and checks expiration. Returns the decoded claims if valid.
+///
+/// # Arguments
+///
+/// - `token` - The JWT string to validate
+/// - `secret` - Secret key used to sign the token (must match generation secret)
+///
+/// # Returns
+///
+/// The decoded `Claims` if the token is valid.
+///
+/// # Security
+///
+/// Validates:
+/// - **Signature** - Token hasn't been tampered with (HS256 verification)
+/// - **Expiration** - Token hasn't expired (checks `exp` claim)
+/// - **Algorithm** - Only HS256 is accepted (prevents algorithm confusion attacks)
+///
+/// Does NOT validate:
+/// - Token revocation (check blacklist separately)
+/// - Issuer or audience (not enforced by default)
+///
+/// # Errors
+///
+/// Returns error if:
+/// - Signature is invalid (token was tampered with or wrong secret)
+/// - Token has expired (`exp` claim is in the past)
+/// - Token format is invalid
+/// - Algorithm is not HS256
+///
+/// # Example
+///
+/// ```no_run
+/// use jwt_service::validate_token;
+///
+/// let secret = "your-secret-key-at-least-32-characters";
+/// let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+///
+/// match validate_token(token, secret) {
+///     Ok(claims) => println!("Valid token for user: {}", claims.sub),
+///     Err(e) => println!("Invalid token: {}", e),
+/// }
+/// # Ok::<(), anyhow::Error>(())
+/// ```
+pub fn validate_token(token: &str, secret: &str) -> Result<Claims> {
+    // ---
+    let decoding_key = DecodingKey::from_secret(secret.as_bytes());
+
+    // Configure validation rules
+    let mut validation = Validation::new(Algorithm::HS256);
+    validation.validate_exp = true; // Check expiration (default, but explicit)
+
+    // Decode and validate token
+    let token_data = decode::<Claims>(token, &decoding_key, &validation)
+        .context("Failed to validate JWT token")?;
+
+    Ok(token_data.claims)
 }
