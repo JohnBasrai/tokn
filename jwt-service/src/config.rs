@@ -87,8 +87,7 @@ impl Config {
         };
 
         let redis = RedisConfig {
-            url: env::var("REDIS_URL")
-                .unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string()),
+            url: env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string()),
         };
 
         let jwt = JwtConfig {
@@ -108,10 +107,6 @@ impl Config {
             anyhow::bail!("JWT_SECRET must be at least 32 characters (256 bits) for security");
         }
 
-        Ok(Config {
-            server,
-            redis,
-            jwt,
-        })
+        Ok(Config { server, redis, jwt })
     }
 }
