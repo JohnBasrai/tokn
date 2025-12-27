@@ -50,15 +50,57 @@ cargo run -p jwt-service
 
 ---
 
-## Testing
+## Testing & Quality Assurance
+
+**Comprehensive automated test suite** validating all authentication flows:
 
 ```bash
-# Run JWT service integration tests
+# Run complete JWT service test suite (10 automated tests)
 ./scripts/test-jwt-service.sh
+```
 
+**What's tested:**
+- ✅ Token generation & validation (HS256 signing, expiration checking)
+- ✅ Refresh token rotation (prevents replay attacks)
+- ✅ Token revocation & blacklisting (Redis-backed)
+- ✅ Protected route authentication (JWT middleware)
+- ✅ Unauthorized access prevention (401 responses)
+- ✅ Security edge cases (missing tokens, revoked tokens)
+
+**Test output example:**
+```
+🧪 Testing JWT Service
+...
+✓ Token generation
+✓ Token validation (valid)
+✓ Token validation (invalid)
+✓ Refresh token flow
+✓ Refresh token rotation
+✓ Token revocation
+✓ Revoked token validation
+✓ Protected route (valid token)
+✓ Protected route (no token)
+✓ Protected route (revoked token)
+🎉 All JWT service tests passed!
+```
+
+**Additional testing:**
+```bash
 # Run all workspace tests
 ./scripts/test-all.sh
+
+# Run local CI pipeline (format, clippy, tests)
+./scripts/ci-local.sh
 ```
+
+**Quality metrics:**
+- 10 automated integration tests
+- CI/CD pipeline validation
+- Code formatting (`cargo fmt`)
+- Linting (`cargo clippy`)
+- Security-focused test scenarios
+
+See [scripts/test-jwt-service.sh](scripts/test-jwt-service.sh) for complete test implementation.
 
 ---
 
@@ -72,9 +114,9 @@ cargo run -p jwt-service
 - Troubleshooting
 
 **Individual service documentation:**
-- [oauth2-client/README.md](oauth2-client/README.md)
-- [oauth2-server/README.md](oauth2-server/README.md)
-- [jwt-service/README.md](jwt-service/README.md)
+- [oauth2-client/README.md](oauth2-client/README.md) - OAuth2 client implementation
+- [oauth2-server/README.md](oauth2-server/README.md) - Authorization server with database
+- [jwt-service/README.md](jwt-service/README.md) - JWT token service with middleware
 
 **Contributing:**
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Code style, documentation standards, architecture guidelines
@@ -89,8 +131,15 @@ Built following Clean Architecture and EMBP (Explicit Module Boundary Pattern).
 - Explicit module boundaries via gateway files (`mod.rs`, `lib.rs`)
 - Trait-based abstractions for business logic
 - Comprehensive rustdoc with RFC references
+- Security-first design (token rotation, revocation, middleware)
 
-See [EMBP documentation](https://github.com/JohnBasrai/architecture-patterns/blob/main/rust/embp.md) for details.
+**Code quality:**
+- Automated test coverage for critical paths
+- RFC-compliant implementations (OAuth2 RFC 6749, JWT RFC 7519)
+- Production-ready error handling
+- Logging and observability
+
+See [EMBP documentation](https://github.com/JohnBasrai/architecture-patterns/blob/main/rust/embp.md) for architectural details.
 
 ---
 

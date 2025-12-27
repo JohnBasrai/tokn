@@ -28,7 +28,7 @@ use uuid::Uuid;
 /// - Never put sensitive data (passwords, credit cards) in claims
 /// - Claims are Base64-encoded, NOT encrypted
 /// - Anyone can decode and read the claims (signature only proves authenticity)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     // ---
     /// Subject - User ID this token represents

@@ -226,6 +226,51 @@ else
 fi
 echo ""
 
+# Test 8: Protected route with valid token
+echo "🔐 Test 8: Protected Route (Valid Token)"
+PROTECTED=$(curl -s "$BASE_URL/protected" \
+  -H "Authorization: Bearer $ACCESS_TOKEN")
+
+if echo "$PROTECTED" | jq -e '.message == "Access granted" and .user_id == "test_user" and .email == "test@example.com"' > /dev/null 2>&1; then
+    echo -e "${GREEN}✓${NC} Protected route accessible with valid token"
+else
+    echo -e "${RED}❌ Protected route failed with valid token${NC}"
+    echo "$PROTECTED" | jq .
+    exit 1
+fi
+echo ""
+
+# Test 9: Protected route without token (should fail)
+echo "🔐 Test 9: Protected Route (No Token)"
+UNAUTHORIZED=$(curl -s -w "\n%{http_code}" "$BASE_URL/protected")
+HTTP_CODE=$(echo "$UNAUTHORIZED" | tail -n1)
+RESPONSE=$(echo "$UNAUTHORIZED" | head -n-1)
+
+if [ "$HTTP_CODE" = "401" ]; then
+    echo -e "${GREEN}✓${NC} Protected route rejected without token (401)"
+else
+    echo -e "${RED}❌ Protected route did not return 401 without token (got $HTTP_CODE)${NC}"
+    echo "$RESPONSE"
+    exit 1
+fi
+echo ""
+
+# Test 10: Protected route with revoked token (should fail)
+echo "🔐 Test 10: Protected Route (Revoked Token)"
+PROTECTED_REVOKED=$(curl -s -w "\n%{http_code}" "$BASE_URL/protected" \
+  -H "Authorization: Bearer $NEW_ACCESS_TOKEN")
+HTTP_CODE=$(echo "$PROTECTED_REVOKED" | tail -n1)
+RESPONSE=$(echo "$PROTECTED_REVOKED" | head -n-1)
+
+if [ "$HTTP_CODE" = "401" ]; then
+    echo -e "${GREEN}✓${NC} Protected route rejected revoked token (401)"
+else
+    echo -e "${RED}❌ Protected route did not reject revoked token (got $HTTP_CODE)${NC}"
+    echo "$RESPONSE"
+    exit 1
+fi
+echo ""
+
 # All tests passed
 echo -e "${GREEN}🎉 All JWT service tests passed!${NC}"
 echo ""
@@ -237,3 +282,6 @@ echo "  ✓ Refresh token flow"
 echo "  ✓ Refresh token rotation"
 echo "  ✓ Token revocation"
 echo "  ✓ Revoked token validation"
+echo "  ✓ Protected route (valid token)"
+echo "  ✓ Protected route (no token)"
+echo "  ✓ Protected route (revoked token)"

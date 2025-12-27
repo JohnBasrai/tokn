@@ -7,6 +7,7 @@
 //! - Signature validation and expiry checking
 //! - Refresh token rotation
 //! - Token revocation (blacklisting)
+//! - Protected route demonstration
 
 use anyhow::Result;
 use axum::{
@@ -14,8 +15,8 @@ use axum::{
     Router,
 };
 use jwt_service::{
-    create_redis_client, generate_token_handler, refresh_token_handler, revoke_token_handler,
-    validate_token_handler, AppState, Config,
+    create_redis_client, generate_token_handler, protected_routes, refresh_token_handler,
+    revoke_token_handler, validate_token_handler, AppState, Config,
 };
 use std::sync::Arc;
 use tracing::info;
@@ -62,6 +63,7 @@ async fn main() -> Result<()> {
         .route("/auth/validate", post(validate_token_handler))
         .route("/auth/refresh", post(refresh_token_handler))
         .route("/auth/revoke", post(revoke_token_handler))
+        .merge(protected_routes(state.clone()))
         .with_state(state);
 
     // Start server
@@ -74,6 +76,7 @@ async fn main() -> Result<()> {
     info!("  POST /auth/validate - Validate JWT token");
     info!("  POST /auth/refresh - Refresh access token");
     info!("  POST /auth/revoke - Revoke (blacklist) JWT token");
+    info!("  GET  /protected - Demo protected endpoint (requires valid JWT)");
 
     axum::serve(listener, app).await?;
 

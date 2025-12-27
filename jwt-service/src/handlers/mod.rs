@@ -11,6 +11,7 @@
 //! - `GET /protected` - Demo protected endpoint requiring valid JWT
 
 mod generate;
+mod protected;
 mod refresh;
 mod revoke;
 mod validate;
@@ -18,11 +19,7 @@ mod validate;
 // ---
 
 pub use generate::generate_token_handler;
+pub use protected::protected_routes;
 pub use refresh::refresh_token_handler;
 pub use revoke::revoke_token_handler;
 pub use validate::validate_token_handler;
-
-// TODO: Add remaining handlers
-// mod protected;
-
-// pub use protected::protected_handler;
