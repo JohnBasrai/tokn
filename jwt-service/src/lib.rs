@@ -38,7 +38,8 @@ pub struct AppState {
 pub use claims::Claims;
 pub use config::Config;
 pub use handlers::{
-    generate_token_handler, refresh_token_handler, revoke_token_handler, validate_token_handler,
+    generate_token_handler, protected_routes, refresh_token_handler, revoke_token_handler,
+    validate_token_handler,
 };
 pub use redis_client::create_redis_client;
 pub use refresh::{generate_refresh_token, validate_refresh_token};
