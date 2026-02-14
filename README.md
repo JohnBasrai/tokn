@@ -4,7 +4,13 @@ OAuth2/OIDC and JWT authentication infrastructure demonstration in Rust.
 
 ## Overview
 
-This workspace demonstrates authentication patterns with:
+This repository is a Rust workspace demonstrating a **production-oriented OAuth2 / JWT authentication system**, built to explore real-world security and correctness concerns rather than just protocol compliance. It implements an end-to-end authentication flow across multiple services, with explicit trust boundaries between authorization, token issuance, and token enforcement.
+
+The design focuses on **token lifecycle safety** (expiration, refresh rotation, revocation), **clear separation of responsibilities**, and **testable security behavior**. JWTs are treated as revocable credentials using Redis-backed invalidation, and all security-critical paths are validated via automated integration tests. Architecturally, the workspace follows Clean Architecture and the Explicit Module Boundary Pattern ([EMBP](https://github.com/JohnBasrai/architecture-patterns/blob/main/rust/embp.md)) to keep domain logic isolated from transport, storage, and framework concerns.
+
+### Major Components
+
+This workspace provides these three major components:
 
 - **oauth2-client** (port 8081) - Demo application using OAuth2 authentication
 - **oauth2-server** (port 8082) - OAuth2 authorization server implementation
